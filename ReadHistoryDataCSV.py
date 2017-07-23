@@ -23,6 +23,7 @@ csv_list = glob.glob(folder + '/*.csv')
 #read all .csv files and save as a dictionary
 history_data = {}
 #history_data2 = {}
+XML_Station_Info = {}
 for i in range(0, len(csv_list)):
         #read history trip data from csv
         history_data[i] = pd.read_csv(csv_list[i])
@@ -31,28 +32,50 @@ for i in range(0, len(csv_list)):
         if i < 19:
             #remove row 'Bike #'
             history_data[i].drop(history_data[i].columns[5], 1, inplace=True)
-#            df = df[np.isfinite(df['EPS'])]
-            
-#            if i == [0,1,2,4]:
-#                history_data[]
         else:
             #remove rows 'Start Station', 'end station', and 'Bike #'
+            ss = history_data[i].iloc[:,3:5]
+            ss.columns = ['station number', 'station address']
+            XML_Station_Info[i-19]=ss.drop_duplicates()
             history_data[i].drop(history_data[i].columns[[4,6,7]], 1, inplace=True)
-            
+
+XML_Station_Info = pd.concat(XML_Station_Info.values(), ignore_index=True)
+XML_Station_Info = XML_Station_Info.drop_duplicates()
+XML_Station_Info.columns = ['station number', 'station address']
+XML_Station_Info = XML_Station_Info[['station address', 'station number']]
+
 import time
 import datetime
-
+XML_Station_Info2 = {}
 for i in range(0,5):
     temp = history_data[i]
     func = lambda x: x.split("(", 1)[1].split(")", 1)[0]
+    func2 = lambda x: x.split(" (", 1)[0]
 #    columns = ['Start station', 'End station']
     #index = np.arange(103) # array of numbers for the number of samples
 #    teststring2 = pd.DataFrame(columns=columns)
+    station_address = temp['Start station'].apply(func2)
     temp['Start station'] = temp['Start station'].apply(func)
     temp['End station'] = temp['End station'].apply(func)
+    temp2 = pd.DataFrame(data = {'station address': station_address,'station number': temp['Start station']})
+    temp2 = temp2.drop_duplicates()
+    XML_Station_Info2[i] = temp2[['station address','station number']]
     history_data[i] = temp
 
-    
+XML_Station_Info2 = pd.concat(XML_Station_Info2.values(), ignore_index=True)
+XML_Station_Info2 = XML_Station_Info2.drop_duplicates()
+XML_Station_Info2['station number'][106] = 31234
+XML_Station_Info2['station number'] = [int(i) for i in XML_Station_Info2['station number']]
+
+from ReadXML import readStationXML
+StationInfo = readStationXML()
+
+Station_Info_Final = StationInfo.iloc[:,0:2].append(XML_Station_Info, ignore_index = True).append(XML_Station_Info2, ignore_index = True)  
+#Station_Info_Final = Station_Info_Final.drop(Station_Info_Final.index[1044])
+Station_Info_Final = Station_Info_Final.drop_duplicates()
+
+
+
 
 aaa = history_data[0]
 datetimestring = history_data[0].iloc[0,1]
