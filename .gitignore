@@ -2,3 +2,6 @@
 *.zip
 hubway-team-viz-gh-pages/
 data.json
+*.pkl
+*.qvw
+*.xlsx
