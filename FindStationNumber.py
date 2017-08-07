@@ -57,14 +57,14 @@ for i in range(12,19):
        'member type']]
 '''
 
-'''
-i=6 # max 18
+
+i=5 # max 18
 testdf = history_data[i]
 testdf2 = testdf
 teststring = testdf.iloc[:,3:5]
 #testindex = Station_Info_Final.iloc[:,0].index(teststring.iloc[0,0])
 
-'''
+
 '''
 start_time = timeit.default_timer()
 # code you want to evaluate
@@ -72,7 +72,7 @@ teststring = teststring.replace(Station_Info_Final.iloc[:,0].tolist(),Station_In
 elapsed = timeit.default_timer() - start_time
 print(elapsed)
 '''
-''''
+
 teststring2 = testdf.iloc[:,3:5]
 start_time = timeit.default_timer()
 # code you want to evaluate
@@ -81,7 +81,8 @@ teststring2 = pd.merge(teststring2, Station_Info_Final, how = 'left', left_on = 
 #check na row
 narow = teststring2[teststring2.isnull().any(axis=1)]
 print(len(narow)/len(teststring2)*100)
-
+#teststring2['start station'] = [int(i) for i in teststring2['start station']]
+a = list(teststring2['start station'].unique())
 teststring3 = teststring2.drop(['start station','end station','station address_x', 'station address_y'], axis=1)
 #teststring3 = teststring3.astype(int)
 #teststring2.columns.values[2:4] = ['start station', 'end station']
@@ -89,4 +90,6 @@ teststring3 = teststring2.drop(['start station','end station','station address_x
 #testdf2.loc[:,3:5] = teststring3.values
 elapsed = timeit.default_timer() - start_time
 print(elapsed)
-'''
+
+a = list(history_data[0]['start station'].unique())
+b = [int(x) for x in a]

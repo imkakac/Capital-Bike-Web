@@ -44,8 +44,6 @@ XML_Station_Info = XML_Station_Info.drop_duplicates()
 XML_Station_Info.columns = ['station number', 'station address']
 XML_Station_Info = XML_Station_Info[['station address', 'station number']]
 
-import time
-import datetime
 XML_Station_Info2 = {}
 for i in range(0,5):
     temp = history_data[i]
@@ -73,6 +71,7 @@ StationInfo = readStationXML()
 Station_Info_Final = StationInfo.iloc[:,0:2].append(XML_Station_Info, ignore_index = True).append(XML_Station_Info2, ignore_index = True)  
 #Station_Info_Final = Station_Info_Final.drop(Station_Info_Final.index[1044])
 Station_Info_Final = Station_Info_Final.drop_duplicates()
+Station_Info_Final = Station_Info_Final.reset_index(drop=True)
 #duplicated station address Calvert St & Woodley Pl NW keep 31121 remove 31106
 Station_Info_Final.drop(Station_Info_Final.index[491], inplace = True)
 Station_Info_Final = Station_Info_Final.reset_index(drop=True)
@@ -134,6 +133,11 @@ def findStationNumber():
 #    import pandas as pd
 #    history_data = data
 #    Station_Info_Final = StationInfo
+    # dupont circle south = 31234
+    history_data[0]['start station'][96357] = 31234
+    history_data[0]['start station'][96358] = 31234
+    history_data[0]['end station'][96357] = 31234
+    history_data[0]['end station'][96358] = 31234
     for i in range(5,19):
         teststring = history_data[i].iloc[:,3:5]
         teststring = pd.merge(teststring, Station_Info_Final, how = 'left', left_on = 'start station', right_on = 'station address', left_index = True)
@@ -149,11 +153,7 @@ dataset = pd.concat(history_data.values(), ignore_index=True)
 
 # convert time to year, month, day, weekday, hour
 #from datetime import datetime
-testlist = dataset.iloc[1:100,1]
-#datetime_object = datetime.strptime(testlist, '%b/%d/%Y %H:%M')
-datetime_object1 = pd.to_datetime(history_data[0].iloc[:,1])
-datetime_object1[datetime_object1.isnull().any(axis=1)]
-
+'''
 starttime_dict = {}
 for i in range(0,27):
     starttime_dict[i] = pd.to_datetime(history_data[i].iloc[:,1])
@@ -161,11 +161,15 @@ for i in range(0,27):
 
 for i in range(0,27):
     print(len(starttime_dict[i][starttime_dict[i].isnull()]))
+
     
 #datetime_df = []
 starttime_series = pd.concat(starttime_dict.values(), ignore_index=True)
 datetime_table = [list(x.isocalendar())+[x.month, x.hour] for x in starttime_series]
 datetime_df = pd.DataFrame(datetime_table, columns = ['year', 'weeknumber', 'weekday','month','hour'])
+datetime_df.to_pickle('datetime_df.pkl')
+'''
+datetime_df = pd.read_pickle('datetime_df.pkl')
 
 #Merge csv dataset and time dataset
 final_dataset = dataset.join(datetime_df)
